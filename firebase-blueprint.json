@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TruthTrace Firestore Schema",
+  "description": "Firestore schema for TruthTrace research documents, evidence queries, and evaluation experiments.",
+  "entities": {
+    "User": {
+      "path": "users/{userId}",
+      "description": "User profile with research activity counters.",
+      "fields": {
+        "userId": { "type": "string", "description": "Authenticated user UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "documentsCount": { "type": "number", "description": "Total ingested documents" },
+        "queriesCount": { "type": "number", "description": "Total investigated questions" },
+        "evaluationsRunCount": { "type": "number", "description": "Total benchmark runs" },
+        "createdAt": { "type": "timestamp", "description": "Account registration time" },
+        "updatedAt": { "type": "timestamp", "description": "Last activity timestamp" }
+      },
+      "required": ["userId", "documentsCount", "queriesCount", "evaluationsRunCount", "createdAt", "updatedAt"]
+    },
+    "Document": {
+      "path": "users/{userId}/documents/{documentId}",
+      "description": "Indexed research document metadata and chunk stats.",
+      "fields": {
+        "userId": { "type": "string", "description": "Owning user UID" },
+        "title": { "type": "string", "description": "Document filename or title" },
+        "snippet": { "type": "string", "description": "Excerpt preview of text content" },
+        "pageCount": { "type": "number", "description": "Page count" },
+        "chunkCount": { "type": "number", "description": "Number of decomposed chunks" },
+        "status": { "type": "string", "description": "Ingestion status: ready, processing, error" },
+        "fileSizeBytes": { "type": "number", "description": "File size in bytes" },
+        "createdAt": { "type": "timestamp", "description": "Upload time" },
+        "updatedAt": { "type": "timestamp", "description": "Last index time" }
+      },
+      "required": ["userId", "title", "snippet", "pageCount", "chunkCount", "status", "createdAt", "updatedAt"]
+    },
+    "Query": {
+      "path": "users/{userId}/queries/{queryId}",
+      "description": "Investigated Q&A session with atomic claims and evidence metrics.",
+      "fields": {
+        "userId": { "type": "string", "description": "Owning user UID" },
+        "question": { "type": "string", "description": "Question asked" },
+        "answer": { "type": "string", "description": "Evidence-grounded answer" },
+        "modelUsed": { "type": "string", "description": "Gemini model identifier" },
+        "retrievalStrategy": { "type": "string", "description": "Strategy: baseline, dense, bm25, hybrid" },
+        "claimCount": { "type": "number", "description": "Total atomic claims extracted" },
+        "supportedClaims": { "type": "number", "description": "Supported claim count" },
+        "contradictedClaims": { "type": "number", "description": "Contradicted claim count" },
+        "insufficientClaims": { "type": "number", "description": "Insufficient evidence count" },
+        "latencyMs": { "type": "number", "description": "End-to-end processing latency" },
+        "createdAt": { "type": "timestamp", "description": "Execution timestamp" }
+      },
+      "required": ["userId", "question", "answer", "modelUsed", "retrievalStrategy", "claimCount", "supportedClaims", "contradictedClaims", "insufficientClaims", "createdAt"]
+    },
+    "Evaluation": {
+      "path": "users/{userId}/evaluations/{evaluationId}",
+      "description": "Reproducible benchmark experiment run comparing retrieval strategies.",
+      "fields": {
+        "userId": { "type": "string", "description": "Owning user UID" },
+        "strategy": { "type": "string", "description": "Retrieval strategy evaluated" },
+        "sampleCount": { "type": "number", "description": "Number of benchmark samples evaluated" },
+        "recallAtK": { "type": "number", "description": "Recall@k retrieval coverage score" },
+        "precisionAtK": { "type": "number", "description": "Precision@k relevance score" },
+        "mrr": { "type": "number", "description": "Mean Reciprocal Rank" },
+        "ndcg": { "type": "number", "description": "Normalized Discounted Cumulative Gain" },
+        "faithfulness": { "type": "number", "description": "Claim-level factual faithfulness score" },
+        "citationCorrectness": { "type": "number", "description": "Citation support accuracy score" },
+        "abstentionScore": { "type": "number", "description": "Abstention on unanswerable questions" },
+        "averageLatencyMs": { "type": "number", "description": "Mean latency per query" },
+        "createdAt": { "type": "timestamp", "description": "Run execution timestamp" }
+      },
+      "required": ["userId", "strategy", "sampleCount", "recallAtK", "precisionAtK", "mrr", "ndcg", "faithfulness", "citationCorrectness", "abstentionScore", "createdAt"]
+    }
+  }
+}

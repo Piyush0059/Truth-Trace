@@ -1,0 +1,105 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidTimestamp(val) {
+      return val is timestamp;
+    }
+
+    function isValidUser(data, userId) {
+      return data.userId == userId
+        && data.documentsCount is number && data.documentsCount >= 0
+        && data.queriesCount is number && data.queriesCount >= 0
+        && data.evaluationsRunCount is number && data.evaluationsRunCount >= 0
+        && isValidTimestamp(data.createdAt)
+        && isValidTimestamp(data.updatedAt)
+        && (!('email' in data) || data.email is string)
+        && (!('displayName' in data) || data.displayName is string);
+    }
+
+    function isValidDocument(data, userId) {
+      return data.userId == userId
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.snippet is string && data.snippet.size() <= 2000
+        && data.pageCount is number && data.pageCount >= 0
+        && data.chunkCount is number && data.chunkCount >= 0
+        && data.status in ['ready', 'processing', 'error']
+        && isValidTimestamp(data.createdAt)
+        && isValidTimestamp(data.updatedAt)
+        && (!('fileSizeBytes' in data) || data.fileSizeBytes is number);
+    }
+
+    function isValidQuery(data, userId) {
+      return data.userId == userId
+        && data.question is string && data.question.size() > 0 && data.question.size() <= 1000
+        && data.answer is string && data.answer.size() <= 10000
+        && data.modelUsed is string
+        && data.retrievalStrategy in ['baseline', 'dense', 'bm25', 'hybrid']
+        && data.claimCount is number && data.claimCount >= 0
+        && data.supportedClaims is number && data.supportedClaims >= 0
+        && data.contradictedClaims is number && data.contradictedClaims >= 0
+        && data.insufficientClaims is number && data.insufficientClaims >= 0
+        && isValidTimestamp(data.createdAt)
+        && (!('latencyMs' in data) || data.latencyMs is number);
+    }
+
+    function isValidEvaluation(data, userId) {
+      return data.userId == userId
+        && data.strategy in ['baseline', 'dense', 'bm25', 'hybrid']
+        && data.sampleCount is number && data.sampleCount >= 0
+        && data.recallAtK is number
+        && data.precisionAtK is number
+        && data.mrr is number
+        && data.ndcg is number
+        && data.faithfulness is number
+        && data.citationCorrectness is number
+        && data.abstentionScore is number
+        && isValidTimestamp(data.createdAt)
+        && (!('averageLatencyMs' in data) || data.averageLatencyMs is number);
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data, userId);
+      allow update: if isOwner(userId)
+        && request.resource.data.userId == resource.data.userId
+        && isValidUser(request.resource.data, userId);
+      allow delete: if isOwner(userId);
+
+      match /documents/{documentId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidDocument(request.resource.data, userId);
+        allow update: if isOwner(userId)
+          && request.resource.data.userId == resource.data.userId
+          && isValidDocument(request.resource.data, userId);
+        allow delete: if isOwner(userId);
+      }
+
+      match /queries/{queryId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidQuery(request.resource.data, userId);
+        allow update: if isOwner(userId)
+          && request.resource.data.userId == resource.data.userId
+          && isValidQuery(request.resource.data, userId);
+        allow delete: if isOwner(userId);
+      }
+
+      match /evaluations/{evaluationId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidEvaluation(request.resource.data, userId);
+        allow update: if isOwner(userId)
+          && request.resource.data.userId == resource.data.userId
+          && isValidEvaluation(request.resource.data, userId);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

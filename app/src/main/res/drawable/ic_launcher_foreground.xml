@@ -1,0 +1,66 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Constellation Connection Lines -->
+    <path
+        android:strokeColor="#8062E8DC"
+        android:strokeWidth="1.8"
+        android:pathData="M34,40 L54,30 M54,30 L74,42 M54,30 L54,54 M34,40 L42,68 M74,42 L66,68 M42,68 L54,54 M66,68 L54,54 M42,68 L66,68" />
+
+    <!-- Center Verification Node / Lens -->
+    <path
+        android:pathData="M54,54m-12,0a12,12 0,1,1 24,0a12,12 0,1,1 -24,0"
+        android:strokeWidth="2.5"
+        android:strokeColor="#62E8DC">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="42"
+                android:startY="42"
+                android:endX="66"
+                android:endY="66"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#2662E8DC" />
+                <item android:offset="1.0" android:color="#339B8CFF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Inner Core Focus Point -->
+    <path
+        android:fillColor="#F3F6FC"
+        android:pathData="M54,54m-4,0a4,4 0,1,1 8,0a4,4 0,1,1 -8,0" />
+
+    <!-- Top Evidence Node -->
+    <path
+        android:fillColor="#62E8DC"
+        android:pathData="M54,30m-5,0a5,5 0,1,1 10,0a5,5 0,1,1 -10,0" />
+
+    <!-- Left Evidence Node -->
+    <path
+        android:fillColor="#9B8CFF"
+        android:pathData="M34,40m-4.5,0a4.5,4.5 0,1,1 9,0a4.5,4.5 0,1,1 -9,0" />
+
+    <!-- Right Evidence Node -->
+    <path
+        android:fillColor="#62E8DC"
+        android:pathData="M74,42m-4.5,0a4.5,4.5 0,1,1 9,0a4.5,4.5 0,1,1 -9,0" />
+
+    <!-- Bottom Left Citation Node -->
+    <path
+        android:fillColor="#2DD4BF"
+        android:pathData="M42,68m-4,0a4,4 0,1,1 8,0a4,4 0,1,1 -8,0" />
+
+    <!-- Bottom Right Citation Node -->
+    <path
+        android:fillColor="#9B8CFF"
+        android:pathData="M66,68m-4,0a4,4 0,1,1 8,0a4,4 0,1,1 -8,0" />
+
+    <!-- Investigation Trace Beam Arc -->
+    <path
+        android:strokeColor="#62E8DC"
+        android:strokeWidth="1.5"
+        android:pathData="M62,62 L78,78" />
+</vector>

@@ -1,0 +1,8 @@
+{
+  "firestore": [
+    {
+      "database": "ai-studio-android-truthtra-217c852a-5b56-4b20-895e-3eee9d4be355",
+      "rules": "firestore.rules"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "name": "TruthTrace",
+  "description": "Evidence-grounded AI research assistant that validates claims, investigates citations, and evaluates retrieval.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
