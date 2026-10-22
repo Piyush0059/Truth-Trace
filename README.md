@@ -1,72 +1,59 @@
-# TruthTrace — AI Research Document Assistant
+# TruthTrace — Evidence-Aware Document Assistant Prototype
 
-> **"Every Answer. Traceable Evidence."**  
-> *AI Answers You Can Investigate.*
+> **Every answer should be open to inspection.**
 
-TruthTrace is an evidence-first, research-grade Android document assistant that synthesizes verifiable, evidence-grounded answers, attributes every factual claim to exact document passages, detects unsupported assertions, and provides a reproducible evaluation laboratory to measure how retrieval quality impacts factual faithfulness.
+TruthTrace is an experimental Android document assistant exploring how retrieval strategy and source-linked claims can help users inspect answers based on their documents. It combines document ingestion, multiple retrieval methods, claim labels, and an in-app comparison dashboard. It is a prototype, not a validated research system.
 
----
+## Exploratory question
 
-## Core Research Question
-> **"How does retrieval strategy affect factual faithfulness and citation correctness in document-grounded question answering?"**
+How do different retrieval strategies affect the passages selected for document-grounded question answering, and how should an interface communicate when evidence is missing or conflicting?
 
-Standard RAG implementations frequently assume that high vector cosine similarity equates to factual truth. TruthTrace separates topical alignment from logical entailment, demonstrating that combining dense semantic retrieval with lexical BM25 matching (Hybrid Reciprocal Rank Fusion) provides superior citation precision and decreases hallucination.
+The application is designed to let a user compare retrieval approaches and inspect whether generated claims appear connected to retrieved source passages. The current demonstration does **not** establish that hybrid retrieval improves citation accuracy or reduces hallucinations in general.
 
----
+## Main features
 
-## Key Features & Capabilities
+1. **Document input**
+   - Supports document-focused workflows, including text/PDF and image-based input where supported by the current build.
+   - The Android Photo Picker is used for selecting document images.
 
-1. **Interactive 3D Evidence Constellation**
-   - High-performance perspective-projected 3D scene built in Jetpack Compose Canvas.
-   - Interactive touch-drag rotation, atmospheric particles, floating document planes, and dynamic retrieval beam animations.
-   - Real-time application state synchronization (Idle, Retrieving, Verifying, Complete).
+2. **Retrieval comparison**
+   - **Baseline:** generation without retrieved document context; useful as a comparison condition, but not by itself a measured hallucination rate.
+   - **BM25 keyword search:** term-based ranking using the Okapi BM25 method.
+   - **Lightweight word/character-trigram vector search:** an in-project vector representation with cosine similarity. This is not a pretrained embedding model.
+   - **Hybrid RRF:** Reciprocal Rank Fusion (k = 60) combines rankings from BM25 and the lightweight vector method.
 
-2. **Multimodal Document Scanner (Gemini 3.1 Pro)**
-   - Android zero-permission Photo Picker (`PickVisualMedia`) for document photo upload.
-   - High-resolution multimodal OCR and semantic understanding via `gemini-3.1-pro-preview`.
+3. **Claim labels and source passages**
+   - The interface breaks answers into claims and labels them **Supported**, **Contradicted**, **Insufficient Evidence**, or **Unverified**.
+   - Citation controls link to retrieved source chunks and their available document metadata.
+   - These labels are model-assisted indications for inspection; they are not guarantees that a claim is logically entailed by the cited passage.
 
-3. **High Thinking Mode (`ThinkingLevel.HIGH`)**
-   - Integrates Gemini 3.1 Pro with High Thinking mode for deep claim-to-passage natural language inference (NLI).
+4. **Evaluation dashboard**
+   - An eight-query demonstration suite compares the four retrieval conditions.
+   - The interface presents retrieval indicators such as Recall@k, Precision@k, MRR, and nDCG@k, together with claim/citation, abstention, and latency indicators.
+   - **Important limitation:** some claim-faithfulness and citation-support scores are produced using preset formulas rather than independently human-labelled ground truth. Results from this small demonstration should be treated as illustrative development signals, not empirical proof, benchmark-quality evidence, or publication-ready findings.
+   - JSON export is provided for inspecting the app’s output; exportability does not by itself make the results scientifically validated.
 
-4. **Multi-Strategy Retrieval Engine**
-   - **Baseline:** Parametric generation without retrieved context (quantifies baseline hallucination).
-   - **Dense Semantic:** Subword n-gram vector embeddings and cosine similarity.
-   - **BM25 Keyword:** Okapi BM25 ranking function with term frequency and document length normalization.
-   - **Hybrid RRF:** Reciprocal Rank Fusion ($k = 60$) blending lexical and semantic signals.
+## Technical stack
 
-5. **Atomic Claim Verification & Citation Integrity**
-   - Answers decomposed into atomic claims.
-   - Conservative 4-state classification: **Supported** (Teal), **Contradicted** (Coral), **Insufficient Evidence** (Amber), **Unverified** (Gray).
-   - Verifiable citation pills `[S1]`, `[S2]` linking to source chunk text, document name, page number, and chunk ID.
+- **Platform:** Native Android
+- **Language/UI:** Kotlin and Jetpack Compose
+- **AI service:** Google Gemini API
+- **Retrieval:** Okapi BM25, lightweight word/character-trigram vectors, Reciprocal Rank Fusion
+- **Backend / account features:** Firebase components used by the current project
+- **Build:** Gradle with Kotlin DSL
 
-6. **Reproducible Research Lab & Evaluation Dashboard**
-   - Controlled benchmark comparison across all 4 strategies.
-   - Computes empirical metrics: **Recall@k**, **Precision@k**, **MRR**, **nDCG@k**, **Claim-Level Faithfulness**, **Citation Support Accuracy**, **Abstention F1**, and **Latency (ms)**.
-   - JSON export for sharing and scientific publication.
+Model availability and API access may change. The app requires appropriate configuration and network access for AI-backed features.
 
-7. **Zero-Trust Security & Firebase Integration**
-   - Firestore Enterprise database scoped per-user (`users/{userId}/...`).
-   - Google Sign-In via Jetpack Credential Manager (`GetSignInWithGoogleOption`).
-   - Untrusted document data sanitization and prompt injection defense.
+## How to explore the demonstration
 
----
+1. Open the project in Android Studio using a compatible Android SDK.
+2. Configure the required Gemini API settings and Firebase configuration for the features you intend to test.
+3. Add or select a sample document and try a question.
+4. Inspect the retrieved passages and claim labels rather than treating the generated answer as authoritative.
+5. Run the in-app demonstration suite to compare the displayed outputs, and export its JSON if you want to examine the results.
 
-## Technical Stack
-- **Platform:** Native Android (Min API 24, Target API 36)
-- **Language:** Kotlin 2.2.10
-- **UI Framework:** Jetpack Compose (Material Design 3)
-- **AI Models:** `gemini-3.1-pro-preview` (High Thinking & Multimodal), `gemini-3.5-flash`, `gemini-3.1-flash-lite-preview`
-- **Cloud Backend:** Firebase Firestore (Custom Database ID), Firebase Auth, Credential Manager
-- **Retrieval:** Okapi BM25, Dense Semantic Vector Search, Reciprocal Rank Fusion
-- **Build System:** Gradle (Kotlin DSL), Secrets Gradle Plugin
+## Evaluation cautions
 
----
+The included test set contains only eight demonstration queries and should not be described as peer-reviewed. Results are sensitive to the documents, queries, retrieval implementation, and AI model configuration. Some displayed claim/citation scores are formula-based and do not represent an independent human audit. A stronger future evaluation would require a documented test corpus, independently annotated relevant passages and claim-support labels, repeatable model/settings records, appropriate baselines, and human review of disagreements.
 
-## Setup & Configuration
-
-1. **Gemini API Key:**
-   Configure your Gemini API key in the Secrets panel in AI Studio (or `.env` as `GEMINI_API_KEY=...`).
-2. **Google Sign-In & Firebase:**
-   Firebase Firestore and Auth are pre-configured with SHA-1/SHA-256 certificate fingerprints and the generated Web Client ID.
-3. **Running the App:**
-   Open the app in the Streaming Android Emulator or build with Gradle.
+Until that work is completed, TruthTrace should be presented as a learning prototype that exposes evaluation questions—not as proof that it improves factual accuracy or prevents hallucinations.
